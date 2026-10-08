@@ -56,7 +56,7 @@
   }
 
   .stat-label {
-    @apply text-xs font-bold tracking-widest text-gray-400 uppercase;
+    @apply text-xs font-bold tracking-widest text-gray-500 uppercase;
   }
 
   .stat-value {
