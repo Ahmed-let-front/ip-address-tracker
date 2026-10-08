@@ -14,9 +14,15 @@
     <header
       class="hero h-75 shrink-0 bg-[url('../assets/images/pattern-bg-mobile.png')] bg-cover bg-center bg-no-repeat px-6 pt-6 lg:h-70 lg:bg-[url('../assets/images/pattern-bg-desktop.png')] lg:pt-8"
     >
-      <h1 class="text-center text-2xl font-medium text-white">IP Address Tracker</h1>
+      <h1 class="text-center text-2xl font-medium text-white">
+        IP Address Tracker
+      </h1>
 
-      <form id="search-form" role="search" class="mx-auto mt-7 flex max-w-139 lg:mt-7.5">
+      <form
+        id="search-form"
+        role="search"
+        class="mx-auto mt-7 flex max-w-139 lg:mt-7.5"
+      >
         <label for="search-input" class="sr-only"
           >Search for any IP address or domain</label
         >
@@ -41,6 +47,15 @@
             aria-hidden="true"
           />
         </button>
+        <button
+          type="button"
+          id="reset-location-btn"
+          aria-label="Return to your country"
+          title="Return to your location"
+          class="cursor-pointer px-4 place-items-center rounded-xl bg-black text-white text-xs font-medium transition-colors hover:bg-gray-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white border-l border-gray-700 ml-4"
+        >
+          My Location
+        </button>
       </form>
     </header>
 
@@ -59,7 +74,9 @@
         aria-live="polite"
         aria-describedby="map"
       >
-        <dl class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-0">
+        <dl
+          class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-0"
+        >
           <div class="stat">
             <dt class="stat-label">IP Address</dt>
             <dd id="ip-address" class="stat-value">------------</dd>
