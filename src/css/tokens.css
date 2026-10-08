@@ -1,2 +1,5 @@
 :root {
+  --gray-950: hsl(0, 0%, 17%);
+  --gray-400: hsl(0, 0%, 58%);
+  --font-size-input: 1.125rem;
 }

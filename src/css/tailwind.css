@@ -1,12 +1,64 @@
 @import 'tailwindcss';
 @import './tokens.css';
 @import '@fontsource-variable/rubik';
-@custom-variant hover (&: hover);
+
+@custom-variant hover (&:hover);
+
 @theme inline {
+  --color-gray-950: var(--gray-950);
+  --color-gray-400: var(--gray-400);
+  --text-input: var(--font-size-input);
 }
+
 @theme {
+  --font-sans: 'Rubik Variable', sans-serif;
 }
+
 @layer base {
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-gray-950) var(--color-white);
+  }
+  
+  :not(input):focus-visible {
+    @apply outline-none ring-2 ring-offset-2 ring-gray-950;
+  }
+
+  body {
+    @apply bg-white font-sans text-gray-950 antialiased;
+  }
+
+  ::selection {
+    @apply bg-gray-950 text-white;
+  }
+
+  ::-webkit-scrollbar {
+    @apply w-2.5;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-white;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-gray-950;
+
+    &:hover {
+      @apply bg-black;
+    }
+  }
 }
+
 @layer components {
+  .stat {
+    @apply relative flex flex-col gap-1 text-center lg:gap-2 lg:px-8 lg:py-9 lg:text-left lg:not-first:before:absolute lg:not-first:before:inset-y-9 lg:not-first:before:left-0 lg:not-first:before:w-px lg:not-first:before:bg-gray-400/40;
+  }
+
+  .stat-label {
+    @apply text-xs font-bold tracking-widest text-gray-400 uppercase;
+  }
+
+  .stat-value {
+    @apply text-xl font-medium wrap-break-word text-gray-950 lg:text-2xl;
+  }
 }
