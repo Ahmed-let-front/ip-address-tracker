@@ -14,8 +14,7 @@ const elements = {
 const config = {
   TIMEOUT_SEC: 10,
   ZOOM_LEVEL: 15,
-  API_KEY_IPIFY: 'at_GA7vbZkGLsCkDHtQ4EinHgZpLkTGX',
-  IPIFY_API_URL: 'https://geo.ipify.org/api/v2/country,city',
+  API_URL_IP: 'https://ipapi.co',
 };
 const state = {
   userLat: 0,
@@ -26,6 +25,7 @@ const state = {
   postalCode: '',
   city: '',
   timeZone: '',
+  country: '',
 };
 const timeout = s => {
   return new Promise((_, reject) => {
@@ -44,18 +44,17 @@ const AJAX = async url => {
   return await res.json();
 };
 const setNewLatAndLng = data => {
-  const { location } = data;
-  state.userLat = location.lat;
-  state.userLng = location.lng;
+  state.userLat = data.latitude;
+  state.userLng = data.longitude;
 };
 const setNewIPDetails = data => {
-  const { location } = data;
   state.ipAddress = data.ip;
-  state.city = location.city;
-  state.region = location.region;
-  state.postalCode = location.postalCode;
-  state.ISP = data.isp;
-  state.timeZone = location.timezone;
+  state.city = data.city;
+  state.region = data.region;
+  state.country = data.country;
+  state.postalCode = data.postal;
+  state.ISP = data.org;
+  state.timeZone = data.timezone;
 };
 
 const updataIpDetails = data => {
@@ -63,9 +62,7 @@ const updataIpDetails = data => {
   setNewIPDetails(data);
 };
 const getIPdetails = async () => {
-  const data = await AJAX(
-    `${config.IPIFY_API_URL}?apiKey=${config.API_KEY_IPIFY}`,
-  );
+  const data = await AJAX(`${config.API_URL_IP}/json`);
   updataIpDetails(data);
 };
 const getGeoLocation = () => {
@@ -85,8 +82,7 @@ const getGeoLocation = () => {
   });
 };
 const updateDomContainerIPDetails = () => {
-  const regionAbbr = (state.region[0] + state.region.at(-1)).toUpperCase();
-  const location = `${state.city} ${regionAbbr ? `, ${regionAbbr}` : ''} ${state.postalCode ? `,${state.postalCode}` : ''}`;
+  const location = `${state.city} ${state.country ? `, ${state.country}` : ''} ${state.postalCode ? `,${state.postalCode}` : ''}`;
   elements.isp.textContent = state.ISP;
   elements.ipAddressEl.textContent = state.ipAddress;
   elements.location.textContent = location;
@@ -138,10 +134,8 @@ const updateMarkerLocation = () => {
 const handlerSearchInput = async (queryIP = '') => {
   try {
     if (queryIP === '') return;
-    const data = await AJAX(
-      `${config.IPIFY_API_URL}?apiKey=${config.API_KEY_IPIFY}&ipAddress=${queryIP}`,
-    );
-    if (!data.location.lat) throw new Error('IP address not found or invalid!');
+    const data = await AJAX(`${config.API_URL_IP}/${queryIP}/json`);
+    if (data.error) throw new Error('IP address not found or invalid!');
     updataIpDetails(data);
     unfocusInActiveEl();
     clearSearchInput();
