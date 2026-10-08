@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import './tokens.css';
 @import '@fontsource-variable/rubik';
+@import 'leaflet/dist/leaflet.css';
 
 @custom-variant hover (&:hover);
 
@@ -19,7 +20,7 @@
     scrollbar-width: thin;
     scrollbar-color: var(--color-gray-950) var(--color-white);
   }
-  
+
   :not(input):focus-visible {
     @apply outline-none ring-2 ring-offset-2 ring-gray-950;
   }
@@ -60,5 +61,12 @@
 
   .stat-value {
     @apply text-xl font-medium wrap-break-word text-gray-950 lg:text-2xl;
+  }
+  .custom-tooltip {
+    @apply bg-white px-3 py-1.5 rounded-lg shadow-lg font-semibold text-gray-800 border-none;
+  }
+
+  .leaflet-tooltip-top.custom-tooltip::before {
+    @apply !border-t-white;
   }
 }
