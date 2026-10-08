@@ -1,0 +1,12 @@
+@import 'tailwindcss';
+@import './tokens.css';
+@import '@fontsource-variable/rubik';
+@custom-variant hover (&: hover);
+@theme inline {
+}
+@theme {
+}
+@layer base {
+}
+@layer components {
+}
