@@ -5,6 +5,7 @@ import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 const elements = {
   map: document.getElementById('map'),
   searchForm: document.getElementById('search-form'),
+  searchInput: document.getElementById('search-input'),
   ipAddressEl: document.getElementById('ip-address'),
   location: document.getElementById('location'),
   timezone: document.getElementById('timezone'),
@@ -61,9 +62,9 @@ const updataIpDetails = data => {
   setNewLatAndLng(data);
   setNewIPDetails(data);
 };
-const getIPdetails = async ip => {
+const getIPdetails = async () => {
   const data = await AJAX(
-    `${config.IPIFY_API_URL}?apiKey=${config.API_KEY_IPIFY}${ip ? ip : ''}`,
+    `${config.IPIFY_API_URL}?apiKey=${config.API_KEY_IPIFY}`,
   );
   updataIpDetails(data);
 };
@@ -91,27 +92,18 @@ const updateDomContainerIPDetails = () => {
   elements.location.textContent = location;
   elements.timezone.textContent = state.timeZone;
 };
-const setupMap = () => {
+const setMarkerInMap = message => {
   const customIcon = L.icon({
     iconUrl: markerIcon,
     shadowUrl: markerShadow,
     iconSize: [25, 30],
     iconAnchor: [12, 41],
   });
-  const map = L.map('map').setView(
-    [state.userLat, state.userLng],
-    config.ZOOM_LEVEL,
-  );
   const marker = L.marker([state.userLat, state.userLng], {
     icon: customIcon,
-  }).addTo(map);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-  }).addTo(map);
+  }).addTo(state.map);
   marker
-    .bindTooltip('Your current location', {
+    .bindTooltip(message, {
       permanent: true,
       direction: 'top',
       offset: [0, -35],
@@ -119,15 +111,60 @@ const setupMap = () => {
     })
     .openTooltip();
 };
-// const handleSearchForm = () => {
-//     elements.searchForm 
-// }
+const setupMap = () => {
+  state.map = L.map('map').setView(
+    [state.userLat, state.userLng],
+    config.ZOOM_LEVEL,
+  );
+  setMarkerInMap('Your Current Location');
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  }).addTo(state.map);
+};
+const unfocusInActiveEl = () => document.activeElement.blur();
+const clearSearchInput = () => (elements.searchInput.value = '');
+const flyToMap = (lat, lng) => {
+  state.map.flyTo([lat, lng], config.ZOOM_LEVEL, {
+    animate: true,
+    duration: 1.5,
+  });
+};
+const updateMarkerLocation = () => {
+  flyToMap(state.userLat, state.userLng);
+  setMarkerInMap('The IP Location');
+};
+const handlerSearchInput = async (queryIP = '') => {
+  try {
+    if (queryIP === '') return;
+    const data = await AJAX(
+      `${config.IPIFY_API_URL}?apiKey=${config.API_KEY_IPIFY}&ipAddress=${queryIP}`,
+    );
+    if (!data.location.lat) throw new Error('IP address not found or invalid!');
+    updataIpDetails(data);
+    unfocusInActiveEl();
+    clearSearchInput();
+    updateMarkerLocation();
+    updateDomContainerIPDetails();
+  } catch (err) {
+    alert(err.message);
+  }
+};
+const handleSearchForm = () => {
+  elements.searchForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const queryIP = elements.searchInput.value.trim();
+    handlerSearchInput(queryIP);
+  });
+};
 const init = async () => {
   try {
     await getIPdetails();
     await getGeoLocation();
     setupMap();
     updateDomContainerIPDetails();
+    handleSearchForm();
   } catch (err) {
     alert(err.message ? err.message : err);
   }
