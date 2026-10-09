@@ -102,12 +102,12 @@ const getGeoLocation = () => {
     } else reject('Geolocation API is not supported by your browser');
   });
 };
-const updateDomContainerIPDetails = state => {
-  const location = `${state.city} ${state.country ? `, ${state.country}` : ''} ${state.postalCode ? `,${state.postalCode}` : ''}`;
-  elements.isp.textContent = state.ISP;
-  elements.ipAddressEl.textContent = state.ipAddress;
+const updateDomContainerIPDetails = data => {
+  const location = `${data.city} ${data.country ? `, ${data.country}` : ''} ${data.postalCode ? `,${data.postalCode}` : ''}`;
+  elements.isp.textContent = data.ISP;
+  elements.ipAddressEl.textContent = data.ipAddress;
   elements.location.textContent = location;
-  elements.timezone.textContent = state.timeZone;
+  elements.timezone.textContent = data.timeZone;
 };
 const setMarkerInMap = (lat, lng, message) => {
   const customIcon = L.icon({
