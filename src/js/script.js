@@ -12,11 +12,13 @@ const elements = {
   timezone: document.getElementById('timezone'),
   isp: document.getElementById('isp'),
 };
+
 const config = {
   TIMEOUT_SEC: 10,
   ZOOM_LEVEL: 15,
   API_URL_IP: 'https://ipapi.co',
 };
+
 const initState = {
   userlat: 0,
   userLng: 0,
@@ -28,6 +30,7 @@ const initState = {
   timeZone: '',
   country: '',
 };
+
 const state = {
   currUserLat: 0,
   currUserLng: 0,
@@ -38,7 +41,9 @@ const state = {
   city: '',
   timeZone: '',
   country: '',
+  currentMarker: null,
 };
+
 const timeout = s => {
   return new Promise((_, reject) => {
     setTimeout(() => {
@@ -50,15 +55,18 @@ const timeout = s => {
     }, 1000 * s);
   });
 };
+
 const AJAX = async url => {
   const res = await Promise.race([fetch(url), timeout(config.TIMEOUT_SEC)]);
   if (!res.ok) throw new Error(`Failed to fetch data! Status: ${res.status}`);
   return await res.json();
 };
+
 const setNewLatAndLng = data => {
   state.currUserLat = data.latitude;
   state.currUserLng = data.longitude;
 };
+
 const setNewIPDetailsInit = data => {
   initState.ipAddress = data.ip;
   initState.city = data.city;
@@ -67,7 +75,10 @@ const setNewIPDetailsInit = data => {
   initState.postalCode = data.postal;
   initState.ISP = data.org;
   initState.timeZone = data.timezone;
+  initState.userlat = data.latitude;
+  initState.userLng = data.longitude;
 };
+
 const setNewIPDetails = data => {
   state.ipAddress = data.ip;
   state.city = data.city;
@@ -82,33 +93,20 @@ const updataIpDetails = data => {
   setNewLatAndLng(data);
   setNewIPDetails(data);
 };
+
 const getIPdetails = async () => {
-  const data = await AJAX(`${config.API_URL_IP}/json`);
+  const data = await AJAX(`${config.API_URL_IP}/json/`);
   setNewIPDetailsInit(data);
 };
-const getGeoLocation = () => {
-  return new Promise((resolve, reject) => {
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        pos => {
-          initState.userlat = pos.coords.latitude;
-          initState.userLng = pos.coords.longitude;
-          resolve();
-        },
-        err => {
-          reject(err.message);
-        },
-      );
-    } else reject('Geolocation API is not supported by your browser');
-  });
-};
+
 const updateDomContainerIPDetails = data => {
-  const location = `${data.city} ${data.country ? `, ${data.country}` : ''} ${data.postalCode ? `,${data.postalCode}` : ''}`;
+  const location = `${data.city || ''} ${data.country ? `, ${data.country}` : ''} ${data.postalCode ? `, ${data.postalCode}` : ''}`;
   elements.isp.textContent = data.ISP;
   elements.ipAddressEl.textContent = data.ipAddress;
   elements.location.textContent = location;
   elements.timezone.textContent = data.timeZone;
 };
+
 const setMarkerInMap = (lat, lng, message) => {
   const customIcon = L.icon({
     iconUrl: markerIcon,
@@ -116,10 +114,14 @@ const setMarkerInMap = (lat, lng, message) => {
     iconSize: [25, 30],
     iconAnchor: [12, 41],
   });
-  const marker = L.marker([lat, lng], {
+  if (state.currentMarker) {
+    state.map.removeLayer(state.currentMarker);
+  }
+  state.currentMarker = L.marker([lat, lng], {
     icon: customIcon,
   }).addTo(state.map);
-  marker
+
+  state.currentMarker
     .bindTooltip(message, {
       permanent: true,
       direction: 'top',
@@ -128,6 +130,7 @@ const setMarkerInMap = (lat, lng, message) => {
     })
     .openTooltip();
 };
+
 const setupMap = () => {
   state.map = L.map('map').setView(
     [initState.userlat, initState.userLng],
@@ -140,32 +143,37 @@ const setupMap = () => {
       '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   }).addTo(state.map);
 };
+
 const unfocusInActiveEl = () => document.activeElement.blur();
 const clearSearchInput = () => (elements.searchInput.value = '');
+
 const flyToMap = (lat, lng) => {
   state.map.flyTo([lat, lng], config.ZOOM_LEVEL, {
     animate: true,
     duration: 1.5,
   });
 };
+
 const updateMarkerLocation = () => {
   flyToMap(state.currUserLat, state.currUserLng);
   setMarkerInMap(state.currUserLat, state.currUserLng, 'The IP Location');
 };
+
 const handlerSearchInput = async (queryIP = '') => {
   try {
     if (queryIP === '') return;
-    const data = await AJAX(`${config.API_URL_IP}/${queryIP}/json`);
+    const data = await AJAX(`${config.API_URL_IP}/${queryIP}/json/`);
     if (data.error) throw new Error('IP address not found or invalid!');
     updataIpDetails(data);
     unfocusInActiveEl();
     clearSearchInput();
-    updateMarkerLocation(state);
+    updateMarkerLocation();
     updateDomContainerIPDetails(state);
   } catch (err) {
     alert(err.message);
   }
 };
+
 const handleSearchForm = () => {
   elements.searchForm.addEventListener('submit', e => {
     e.preventDefault();
@@ -173,17 +181,28 @@ const handleSearchForm = () => {
     handlerSearchInput(queryIP);
   });
 };
+
 const handleResetLocation = () => {
-  elements.resetLocationBtn.addEventListener('click', async () => {
+  elements.resetLocationBtn.addEventListener('click', () => {
+    state.currUserLat = initState.userlat;
+    state.currUserLng = initState.userLng;
     setNewIPDetails(initState);
     flyToMap(initState.userlat, initState.userLng);
+    setMarkerInMap(
+      initState.userlat,
+      initState.userLng,
+      'Your Current Location',
+    );
     updateDomContainerIPDetails(initState);
   });
 };
+
 const init = async () => {
   try {
     await getIPdetails();
-    await getGeoLocation();
+    state.currUserLat = initState.userlat;
+    state.currUserLng = initState.userLng;
+    setNewIPDetails(initState);
     setupMap();
     updateDomContainerIPDetails(initState);
     handleSearchForm();
