@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="overflow-x-hidden">
   <head>
     <meta charset="UTF-8" />
     <meta
@@ -12,6 +12,17 @@
     <title>IP Address Tracker</title>
   </head>
   <body class="flex min-h-dvh flex-col">
+    <div
+      class="fixed top-6 right-0 max-md:left-0 w-fit mx-auto md:mx-0 md:right-10 z-50 max-w-sm pointer-events-none"
+    >
+      <ul
+        id="search-errors"
+        class="flex flex-col gap-2 pointer-events-auto"
+        aria-live="polite"
+      >
+
+      </ul>
+    </div>
     <header
       class="hero h-75 shrink-0 bg-[url('../assets/images/pattern-bg-mobile.png')] bg-cover bg-center bg-no-repeat px-6 pt-6 lg:h-70 lg:bg-[url('../assets/images/pattern-bg-desktop.png')] lg:pt-8"
     >
@@ -22,41 +33,45 @@
       <form
         id="search-form"
         role="search"
-        class="mx-auto mt-7 flex max-w-139 lg:mt-7.5"
+        class="mx-auto mt-7 flex max-w-139 flex-col lg:mt-7.5"
       >
-        <label for="search-input" class="sr-only"
-          >Search for any IP address or domain</label
-        >
-        <input
-          id="search-input"
-          type="text"
-          name="query"
-          autocomplete="off"
-          placeholder="Search for any IP address or domain"
-          class="h-14.5 min-w-0 flex-1 rounded-l-2xl bg-white px-4 text-input text-ellipsis text-gray-950 caret-gray-950 placeholder:text-gray-400 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-gray-950 sm:px-6 duration-500 transition-colors"
-        />
-        <button
-          type="submit"
-          aria-label="Search"
-          class="grid w-14.5 shrink-0 cursor-pointer place-items-center rounded-r-2xl bg-black transition-colors hover:bg-gray-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-        >
-          <img
-            src="/src/assets/images/icon-arrow.svg"
-            alt=""
-            width="11"
-            height="14"
-            aria-hidden="true"
+        <div class="flex w-full">
+          <label for="search-input" class="sr-only"
+            >Search for any IP address or domain</label
+          >
+          <input
+            id="search-input"
+            type="text"
+            name="query"
+            aria-invalid="false"
+            autocomplete="off"
+            aria-describedby="search-errors"
+            placeholder="Search for any IP address or domain"
+            class="h-14.5 min-w-0 flex-1 rounded-l-2xl bg-white px-4 text-input text-ellipsis text-gray-950 caret-gray-950 placeholder:text-gray-400 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-gray-950 sm:px-6 duration-500 transition-colors"
           />
-        </button>
-        <button
-          type="button"
-          id="reset-location-btn"
-          aria-label="Return to your country"
-          title="Return to your location"
-          class="cursor-pointer px-4 place-items-center rounded-xl bg-black text-white text-xs font-medium transition-colors hover:bg-gray-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white border-l border-gray-700 ml-4"
-        >
-          My Location
-        </button>
+          <button
+            type="submit"
+            aria-label="Search"
+            class="grid w-14.5 shrink-0 cursor-pointer place-items-center rounded-r-2xl bg-black transition-colors hover:bg-gray-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          >
+            <img
+              src="/src/assets/images/icon-arrow.svg"
+              alt=""
+              width="11"
+              height="14"
+              aria-hidden="true"
+            />
+          </button>
+          <button
+            type="button"
+            id="reset-location-btn"
+            aria-label="Return to your country"
+            title="Return to your location"
+            class="cursor-pointer px-4 place-items-center rounded-xl bg-black text-white text-xs font-medium transition-colors hover:bg-gray-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white border-l border-gray-700 ml-4"
+          >
+            My Location
+          </button>
+        </div>
       </form>
     </header>
 
@@ -69,32 +84,30 @@
       ></div>
 
       <div
-        class="relative z-10 -mt-33 px-6 lg:-mt-20 mx-auto max-w-277 rounded-2xl bg-white p-6 shadow-xl shadow-black/10 lg:p-0"
-        role="region"
-        aria-label="IP address details"
-        aria-live="polite"
-        aria-describedby="map"
+        class="relative z-10 -mt-33 px-12 lg:-mt-20 mx-auto w-full max-w-250"
       >
-        <dl
-          class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-0"
-        >
-          <div class="stat">
-            <dt class="stat-label">IP Address</dt>
-            <dd id="ip-address" class="stat-value">------------</dd>
-          </div>
-          <div class="stat">
-            <dt class="stat-label">Location</dt>
-            <dd id="location" class="stat-value">------------</dd>
-          </div>
-          <div class="stat">
-            <dt class="stat-label">Timezone</dt>
-            <dd id="timezone" class="stat-value">------------</dd>
-          </div>
-          <div class="stat">
-            <dt class="stat-label">ISP</dt>
-            <dd id="isp" class="stat-value">----------</dd>
-          </div>
-        </dl>
+        <div class="rounded-2xl bg-white p-6 shadow-xl shadow-black/10 lg:p-0">
+          <dl
+            class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-0"
+          >
+            <div class="stat">
+              <dt class="stat-label">IP Address</dt>
+              <dd id="ip-address" class="stat-value">------------</dd>
+            </div>
+            <div class="stat">
+              <dt class="stat-label">Location</dt>
+              <dd id="location" class="stat-value">------------</dd>
+            </div>
+            <div class="stat">
+              <dt class="stat-label">Timezone</dt>
+              <dd id="timezone" class="stat-value">------------</dd>
+            </div>
+            <div class="stat">
+              <dt class="stat-label">ISP</dt>
+              <dd id="isp" class="stat-value">----------</dd>
+            </div>
+          </dl>
+        </div>
       </div>
     </main>
   </body>

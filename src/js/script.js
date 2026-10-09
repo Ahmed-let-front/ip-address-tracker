@@ -11,10 +11,12 @@ const elements = {
   location: document.getElementById('location'),
   timezone: document.getElementById('timezone'),
   isp: document.getElementById('isp'),
+  searchErrorsList: document.getElementById('search-errors'),
 };
 
 const config = {
   TIMEOUT_SEC: 10,
+  TIMEOUT_SEC_ERROR: 5,
   ZOOM_LEVEL: 15,
   API_URL_IP: 'https://ipapi.co',
 };
@@ -98,9 +100,29 @@ const getIPdetails = async () => {
   const data = await AJAX(`${config.API_URL_IP}/json/`);
   setNewIPDetailsInit(data);
 };
+const removeLastError = s => {
+  const lastEl = elements.searchErrorsList.lastElementChild;
+  setTimeout(() => {
+    lastEl.classList.add('translate-x-[20rem]', 'opacity-0');
+    setTimeout(() => {
+      lastEl.remove();
+    }, 500);
+  }, 1000 * s);
+};
+const displayError = message => {
+  const HTML = `
+    <li class="flex items-center gap-3 rounded-xl bg-gray-950/90 backdrop-blur-md px-4 py-3 text-xs font-medium text-white shadow-xl border border-gray-800 starting:translate-x-[10rem]  starting:opacity-0 opacity-100 duration-500 trnasition-transform translate-x-0">
+      <span class="h-2 w-2 rounded-full bg-rose-500 shrink-0"></span>
+      <p>${message}.</p>
+    </li>
+  `;
+  elements.searchErrorsList.insertAdjacentHTML('beforeend', HTML);
+  removeLastError(config.TIMEOUT_SEC_ERROR);
+};
 
 const updateDomContainerIPDetails = data => {
-  const location = `${data.city || ''} ${data.country ? `, ${data.country}` : ''} ${data.postalCode ? `, ${data.postalCode}` : ''}`;
+  const location =
+    `${[data.city, data.country].filter(Boolean).join(', ')} ${data.postalCode || ''}`.trim();
   elements.isp.textContent = data.ISP;
   elements.ipAddressEl.textContent = data.ipAddress;
   elements.location.textContent = location;
@@ -170,7 +192,8 @@ const handlerSearchInput = async (queryIP = '') => {
     updateMarkerLocation();
     updateDomContainerIPDetails(state);
   } catch (err) {
-    alert(err.message);
+    elements.searchInput.setAttribute('aria-invaild', true);
+    displayError(err.message);
   }
 };
 
@@ -208,7 +231,7 @@ const init = async () => {
     handleSearchForm();
     handleResetLocation();
   } catch (err) {
-    alert(err.message ? err.message : err);
+    displayError(err.message);
   }
 };
 init();
