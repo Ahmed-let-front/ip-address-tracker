@@ -65,7 +65,7 @@ git clone https://github.com/Ahmed-let-front/ip-address-tracker.git
 ### 2. Navigate to the project directory:
 
 ```bash
-cd rest-countries
+cd ip-address-tracker
 ```
 
 ### 3. Install dependencies:
